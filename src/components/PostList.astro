@@ -1,0 +1,35 @@
+---
+import { url, fmtDate, excerpt } from "../site";
+interface Props { posts: any[]; withExcerpt?: boolean }
+const { posts, withExcerpt = true } = Astro.props;
+---
+<ol class="posts" reversed>
+  {posts.map((p) => (
+    <li>
+      <time datetime={p.data.date.toISOString()}>{fmtDate(p.data.date)}</time>
+      <div>
+        <h2><a href={url(`posts/${p.id}/`)}>{p.data.title}</a></h2>
+        {withExcerpt && <p>{p.data.description ?? excerpt(p.body)}</p>}
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .posts { list-style: none; margin: 0; padding: 0; }
+  li {
+    display: grid; grid-template-columns: 9.5rem minmax(0, var(--measure));
+    gap: 0 2rem; padding-block: 1.6rem;
+    border-top: 1px solid var(--rule);
+  }
+  li:first-child { border-top: 0; }
+  time { color: var(--fern); font-size: var(--step--1); padding-top: 0.45rem; }
+  h2 { font-size: var(--step-2); }
+  h2 a { color: var(--ink); text-decoration: none; }
+  h2 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: var(--mulberry); }
+  p { margin: 0.5rem 0 0; color: #3b4637; }
+  @media (max-width: 44rem) {
+    li { grid-template-columns: 1fr; }
+    time { padding-top: 0; }
+  }
+</style>

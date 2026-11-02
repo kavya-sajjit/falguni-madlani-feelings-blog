@@ -1,0 +1,67 @@
+---
+/**
+ * A single fern frond, drawn as line art. On the home page it draws itself once;
+ * everywhere else (and with reduced motion) it's simply there.
+ */
+interface Props { animate?: boolean; class?: string }
+const { animate = false, class: cls = "" } = Astro.props;
+
+// Stem: quadratic bezier from the base (bottom) to the tip (top), curving right.
+const P0 = [70, 330], P1 = [40, 150], P2 = [128, 18];
+const at = (t: number) => [
+  (1 - t) ** 2 * P0[0] + 2 * (1 - t) * t * P1[0] + t * t * P2[0],
+  (1 - t) ** 2 * P0[1] + 2 * (1 - t) * t * P1[1] + t * t * P2[1],
+];
+const tangent = (t: number) => {
+  const dx = 2 * (1 - t) * (P1[0] - P0[0]) + 2 * t * (P2[0] - P1[0]);
+  const dy = 2 * (1 - t) * (P1[1] - P0[1]) + 2 * t * (P2[1] - P1[1]);
+  const n = Math.hypot(dx, dy);
+  return [dx / n, dy / n];
+};
+const f = (n: number) => n.toFixed(1);
+
+const stem = `M${P0} Q${P1} ${P2}`;
+const leaflets: { d: string; delay: number }[] = [];
+const N = 17;
+for (let i = 0; i < N; i++) {
+  const t = 0.1 + (i / N) * 0.86;
+  const [x, y] = at(t);
+  const [tx, ty] = tangent(t);
+  const len = 62 * Math.sin(Math.PI * (0.18 + 0.82 * (1 - t))) * (1 - t * 0.45) + 6;
+  for (const side of [-1, 1]) {
+    // perpendicular, tilted towards the tip
+    const nx = -ty * side, ny = tx * side;
+    const ex = x + (nx * 0.86 + tx * 0.5) * len, ey = y + (ny * 0.86 + ty * 0.5) * len;
+    // control point bowed upward so each leaflet curls slightly
+    const cx = x + (nx * 0.5 + tx * 0.05) * len - tx * 4, cy = y + (ny * 0.5 + ty * 0.05) * len - 6;
+    leaflets.push({ d: `M${f(x)},${f(y)} Q${f(cx)},${f(cy)} ${f(ex)},${f(ey)}`, delay: 0.5 + i * 0.07 + (side > 0 ? 0.03 : 0) });
+  }
+}
+---
+<svg class:list={["fern", { "fern--draw": animate }, cls]} viewBox="0 0 200 340" aria-hidden="true" focusable="false">
+  <path class="fern__stem" d={stem} pathLength="1" />
+  {leaflets.map((l) => <path d={l.d} pathLength="1" style={`--d:${l.delay.toFixed(2)}s`} />)}
+</svg>
+
+<style>
+  .fern { width: 100%; height: auto; overflow: visible; }
+  .fern path {
+    fill: none;
+    stroke: var(--moss);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .fern__stem { stroke-width: 1.8 !important; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fern--draw path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: draw 0.9s cubic-bezier(0.45, 0, 0.2, 1) forwards;
+      animation-delay: var(--d, 0s);
+    }
+    .fern--draw .fern__stem { animation-duration: 1.6s; }
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+</style>

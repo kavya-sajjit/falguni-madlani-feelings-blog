@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kavya-sajjit.github.io/falguni-madlani-feelings-blog/sitemap-index.xml

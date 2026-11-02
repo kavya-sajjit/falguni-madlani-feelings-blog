@@ -1,0 +1,31 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import PostList from "../components/PostList.astro";
+
+const posts = (await getCollection("posts", (p) => !p.data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const years = [...new Set(posts.map((p) => p.data.date.getFullYear()))];
+---
+<Base title="Archive" description="Every post on Feelings by Falguni Madlani, by year.">
+  <div class="wrap page">
+    <h1>Archive</h1>
+    <p class="count">{posts.length ? `${posts.length} ${posts.length === 1 ? "post" : "posts"} since ${years.at(-1)}.` : "No posts yet."}</p>
+    {years.map((y) => (
+      <section aria-labelledby={`y${y}`}>
+        <h2 id={`y${y}`}>{y}</h2>
+        <PostList posts={posts.filter((p) => p.data.date.getFullYear() === y)} withExcerpt={false} />
+      </section>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .page { padding-top: clamp(2.5rem, 7vw, 5rem); }
+  h1 { font-size: var(--step-3); }
+  .count { color: var(--fern); margin: 0.5rem 0 2.5rem; }
+  section { margin-top: 2.5rem; }
+  section h2 { font-size: var(--step-1); color: var(--moss); margin-bottom: 0.25rem; }
+  section :global(li) { padding-block: 0.9rem; }
+  section :global(h2) { font-size: var(--step-1); }
+</style>

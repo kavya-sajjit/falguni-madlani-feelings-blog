@@ -1,0 +1,29 @@
+# Copies posts from the old Blogger blog into this repo. Run it from the Actions tab:
+# Actions -> "Import from Blogger" -> Run workflow. Safe to run again; it only adds or updates.
+name: Import from Blogger
+on:
+  workflow_dispatch:
+    inputs:
+      blogger_url:
+        description: "Blogger address, e.g. https://example.blogspot.com"
+        required: true
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/import-blogger.mjs
+        env:
+          BLOGGER_URL: ${{ inputs.blogger_url }}
+      - name: Commit imported posts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/posts
+          git diff --cached --quiet || git commit -m "Import posts from Blogger"
+          git push

@@ -1,0 +1,23 @@
+# Lets Falguni write and publish posts from https://app.pagescms.org
+# (sign in with GitHub, open this repo, choose "Posts", "Add an entry").
+media:
+  input: public/images
+  output: /falguni-madlani-feelings-blog/images
+content:
+  - name: posts
+    label: Posts
+    type: collection
+    path: src/content/posts
+    filename: "{year}-{month}-{primary}.md"
+    view:
+      fields: [title, date, draft]
+      sort: [date]
+      default: { sort: date, order: desc }
+    fields:
+      - { name: title, label: Title, type: string, required: true }
+      - { name: date, label: Date, type: date, required: true }
+      - { name: cover, label: Photo at the top (optional), type: image }
+      - { name: coverAlt, label: Describe the photo in a few words, type: string }
+      - { name: description, label: One-line summary for Google and WhatsApp previews (optional), type: text }
+      - { name: draft, label: Save as draft (not shown on the site), type: boolean, default: false }
+      - { name: body, label: Post, type: rich-text }

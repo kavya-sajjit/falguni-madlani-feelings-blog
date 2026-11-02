@@ -1,0 +1,53 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import Fern from "../components/Fern.astro";
+import PostList from "../components/PostList.astro";
+import { url } from "../site";
+
+const posts = (await getCollection("posts", (p) => !p.data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const latest = posts.slice(0, 8);
+---
+<Base>
+  <section class="hero wrap">
+    <div class="hero__fern"><Fern animate /></div>
+    <div class="hero__text">
+      <h1>Feelings</h1>
+      <p class="lede">
+        Personal writing by Falguni Madlani, about life, family,
+        and the small moments that stay with her.
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="recent">
+    <h2 id="recent" class="section-title">Recent writing</h2>
+    {latest.length ? <PostList posts={latest} /> : <p class="empty">The first post is on its way.</p>}
+    {posts.length > latest.length && (
+      <p class="more"><a href={url("archive/")}>All {posts.length} posts, by year</a></p>
+    )}
+  </section>
+</Base>
+
+<style>
+  .hero {
+    display: grid; grid-template-columns: 9.5rem minmax(0, 1fr);
+    gap: 1rem 2rem; align-items: end;
+    padding-block: clamp(2.5rem, 8vw, 6rem) clamp(2.5rem, 6vw, 4.5rem);
+  }
+  .hero__fern { width: 7.5rem; }
+  h1 {
+    font-size: var(--step-4); letter-spacing: -0.01em;
+    margin-bottom: 1.25rem;
+  }
+  .lede { margin: 0; max-width: 30rem; font-size: var(--step-1); line-height: 1.5; color: #34402f; text-wrap: pretty; }
+  .section-title { font-size: var(--step--1); font-family: var(--serif); color: var(--fern); font-style: italic; margin-bottom: 0.5rem; }
+  .more { margin: 1rem 0 0; padding-left: 11.5rem; }
+  .empty { color: var(--fern); }
+  @media (max-width: 44rem) {
+    .hero { grid-template-columns: 4.5rem 1fr; gap: 1rem 1.25rem; align-items: center; }
+    .hero__fern { width: 4.5rem; }
+    .more { padding-left: 0; }
+  }
+</style>

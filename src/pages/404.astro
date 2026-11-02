@@ -1,0 +1,10 @@
+---
+import Base from "../layouts/Base.astro";
+import { url } from "../site";
+---
+<Base title="Page not found">
+  <div class="wrap" style="padding-top: 5rem; max-width: 36rem;">
+    <h1 style="font-size: var(--step-3);">This page isn't here</h1>
+    <p>The link may be from the old Blogger site. Every post is listed in the <a href={url("archive/")}>archive</a>.</p>
+  </div>
+</Base>

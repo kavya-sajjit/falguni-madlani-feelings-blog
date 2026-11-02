@@ -1,0 +1,24 @@
+---
+import Base from "../layouts/Base.astro";
+import Fern from "../components/Fern.astro";
+---
+<Base title="About" description="About Falguni Madlani, who writes the blog Feelings.">
+  <div class="wrap page">
+    <div class="about">
+      <div class="fern"><Fern /></div>
+      <div class="prose">
+        <h1>About</h1>
+        <!-- TODO(kavya): replace with 2–3 lines in Mummy's own words, and add her photo:
+             put it in public/images/ and use <img src="/falguni-madlani-feelings-blog/images/NAME.jpg" alt="..."> -->
+        <p>Falguni Madlani writes <em>Feelings</em>, a personal blog she began on Blogger. This is its new home, with every earlier post brought across.</p>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page { padding-top: clamp(2.5rem, 7vw, 5rem); }
+  .about { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+  h1 { font-size: var(--step-3); margin-bottom: 1.5rem; }
+  @media (max-width: 44rem) { .about { grid-template-columns: 1fr; } .fern { width: 4rem; } }
+</style>
