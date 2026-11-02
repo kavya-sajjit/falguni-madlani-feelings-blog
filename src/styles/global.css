@@ -56,7 +56,8 @@ h1, h2, h3 { font-family: var(--serif-display); font-weight: 400; line-height: 1
 .skip:focus { left: 1rem; top: 1rem; background: var(--sheet); padding: 0.5rem 1rem; z-index: 10; }
 
 /* ---------- long-form text (posts and about) */
-.prose { max-width: var(--measure); hyphens: auto; }
+.prose { max-width: var(--measure); hyphens: auto; overflow-wrap: break-word; }
+.prose a { overflow-wrap: anywhere; }
 .prose > * + * { margin-top: 1.1em; }
 .prose p { margin: 0; }
 .prose p + p { margin-top: 0.9em; }
@@ -80,3 +81,5 @@ h1, h2, h3 { font-family: var(--serif-display); font-weight: 400; line-height: 1
 .prose .blogger img { margin: 1.5rem 0; }
 
 .hand { font-family: var(--hand); color: var(--clay); font-weight: 400; }
+.prose .blogger img { max-height: 34rem; width: auto; border-radius: 4px; }
+.prose .blogger a:has(> img) { display: inline-block; }

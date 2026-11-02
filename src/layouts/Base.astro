@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import { SITE, url } from "../site";
 import Toran from "../components/Toran.astro";
+import { getCollection } from "astro:content";
 
 interface Props {
   title?: string;
@@ -16,9 +17,11 @@ const pageTitle = title ? `${title} | ${SITE.fullTitle}` : `${SITE.fullTitle}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image ?? url("og.png"), Astro.site);
 const path = Astro.url.pathname;
+// The Topics page only appears in the menu once posts have topics.
+const hasTopics = (await getCollection("posts")).some((p) => p.data.labels.length > 0);
 const nav = [
   { href: url("/"), label: "Writing" },
-  { href: url("topics/"), label: "Topics" },
+  ...(hasTopics ? [{ href: url("topics/"), label: "Topics" }] : []),
   { href: url("search/"), label: "Search" },
   { href: url("about/"), label: "About" },
 ];

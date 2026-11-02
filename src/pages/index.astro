@@ -32,7 +32,7 @@ const hasPhoto = fs.existsSync("public/images/falguni.jpg");
     <section class="wrap latest" aria-labelledby="latest-title">
       <p class="kicker"><time datetime={latest.data.date.toISOString()}>{fmtDate(latest.data.date)}</time>, the newest post</p>
       <h2 id="latest-title"><a href={url(`posts/${latest.id}/`)}>{latest.data.title}</a></h2>
-      <p class="latest__text">{latest.data.description ?? excerpt(latest.body, 70)}</p>
+      <p class="latest__text">{latest.data.description ?? excerpt(latest.body, 70, latest.data.title)}</p>
       <p class="latest__more"><a href={url(`posts/${latest.id}/`)}>Read the whole post</a> <span>({readingTime(latest.body)})</span></p>
     </section>
   ) : (

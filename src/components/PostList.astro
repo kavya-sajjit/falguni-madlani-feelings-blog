@@ -9,7 +9,7 @@ const { posts, withExcerpt = true } = Astro.props;
       <time datetime={p.data.date.toISOString()}>{fmtDate(p.data.date)}</time>
       <div>
         <h2><a href={url(`posts/${p.id}/`)}>{p.data.title}</a></h2>
-        {withExcerpt && <p>{p.data.description ?? excerpt(p.body)}</p>}
+        {withExcerpt && <p>{p.data.description ?? excerpt(p.body, 38, p.data.title)}</p>}
         {withExcerpt && <p class="rt">{readingTime(p.body)}</p>}
       </div>
     </li>

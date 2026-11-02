@@ -19,6 +19,8 @@ export async function getStaticPaths() {
 const { post, prev, next, related } = Astro.props;
 const { Content } = await render(post);
 const description = post.data.description ?? excerpt(post.body, 28);
+// Many imported posts already end with "By Falguni Madlani"; don't sign twice.
+const signed = /by\s+falguni/i.test(post.body.replace(/<[^>]+>/g, " ").trim().slice(-200));
 const href = new URL(url(`posts/${post.id}/`), Astro.site).href;
 ---
 <Base title={post.data.title} description={description} image={post.data.cover ?? post.data.image} article={{ published: post.data.date }}>
@@ -36,7 +38,7 @@ const href = new URL(url(`posts/${post.id}/`), Astro.site).href;
       <h1>{post.data.title}</h1>
       {post.data.cover && <img class="cover" src={post.data.cover} alt={post.data.coverAlt ?? ""} />}
       <div class="prose"><Content /></div>
-      <p class="hand sign" data-pagefind-ignore>~ Falguni</p>
+      {!signed && <p class="hand sign" data-pagefind-ignore>~ Falguni</p>}
       <div data-pagefind-ignore><Share title={post.data.title} href={href} /></div>
     </div>
   </article>

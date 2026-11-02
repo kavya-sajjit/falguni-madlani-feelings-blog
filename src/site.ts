@@ -15,8 +15,8 @@ export const fmtDate = (d: Date) =>
   d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 
 /** Plain-text excerpt from markdown/HTML body. */
-export const excerpt = (body = "", words = 38) => {
-  const text = body
+export const excerpt = (body = "", words = 38, title = "") => {
+  let text = body
     .replace(/<[^>]+>/g, " ")
     .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
@@ -24,6 +24,8 @@ export const excerpt = (body = "", words = 38) => {
     .replace(/&nbsp;/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+  // Imported posts often open by repeating their title; skip it in the excerpt.
+  if (title && text.toLowerCase().startsWith(title.toLowerCase())) text = text.slice(title.length).trim();
   const w = text.split(" ");
   return w.length > words ? w.slice(0, words).join(" ") + "…" : text;
 };

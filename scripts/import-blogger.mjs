@@ -7,6 +7,7 @@
 // Images stay hosted on Blogger's servers, so nothing is lost if this runs again later.
 import fs from "node:fs/promises";
 import path from "node:path";
+import { cleanBloggerHtml } from "./clean-blogger-html.mjs";
 
 const BLOG = (process.env.BLOGGER_URL || process.argv[2] || "").replace(/\/$/, "");
 if (!BLOG) {
@@ -26,14 +27,6 @@ function slugFrom(entry) {
   return `post-${id}`;
 }
 
-function cleanHtml(html) {
-  return html
-    .replace(/<a name=['"]more['"]><\/a>/g, "")      // Blogger "read more" marker
-    .replace(/(src=["'][^"']*googleusercontent[^"']*?)\/s\d+(-[a-z]+)?\//g, "$1/s1600/") // full-size images
-    .replace(/\s(?:face|size)="[^"]*"/g, "")         // old <font> attributes
-    .replace(/<\/?font[^>]*>/g, "")
-    .replace(/ /g, " ");
-}
 
 function firstImage(html) {
   const m = html.match(/<img[^>]+src=["']([^"']+)["']/);
@@ -50,7 +43,7 @@ for (;;) {
 
   for (const e of entries) {
     const id = e.id.$t.split("post-").pop();
-    const html = cleanHtml(e.content?.$t ?? e.summary?.$t ?? "");
+    const html = cleanBloggerHtml(e.content?.$t ?? e.summary?.$t ?? "", e.title.$t);
     const cover = firstImage(html);
     const labels = (e.category || []).map((c) => c.term);
     const front = [
