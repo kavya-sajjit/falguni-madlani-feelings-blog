@@ -1,0 +1,50 @@
+---
+interface Props { title: string; href: string }
+const { title, href } = Astro.props;
+const text = encodeURIComponent(`${title}, by Falguni Madlani\n${href}`);
+---
+<div class="share">
+  <p class="share__label">Share this post</p>
+  <div class="share__row">
+    <a class="share__btn" href={`https://wa.me/?text=${text}`} target="_blank" rel="noopener">WhatsApp</a>
+    <a class="share__btn" href={`mailto:?subject=${encodeURIComponent(title)}&body=${text}`}>Email</a>
+    <button class="share__btn" type="button" data-copy={href}>Copy link</button>
+    <button class="share__btn" type="button" data-native hidden>More options</button>
+  </div>
+  <p class="share__status" role="status" aria-live="polite"></p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".share").forEach((root) => {
+    const status = root.querySelector<HTMLElement>(".share__status")!;
+    const copy = root.querySelector<HTMLButtonElement>("[data-copy]")!;
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(copy.dataset.copy!);
+        status.textContent = "Link copied. Paste it anywhere to share.";
+      } catch {
+        status.textContent = "Couldn't copy automatically. Copy the address from the top of the browser.";
+      }
+    });
+    const native = root.querySelector<HTMLButtonElement>("[data-native]")!;
+    if (navigator.share) {
+      native.hidden = false;
+      native.addEventListener("click", () =>
+        navigator.share({ title: document.title, url: copy.dataset.copy }).catch(() => {}));
+    }
+  });
+</script>
+
+<style>
+  .share { margin-top: 2.5rem; }
+  .share__label { margin: 0 0 0.6rem; font-size: var(--step--1); color: var(--fern); font-style: italic; }
+  .share__row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .share__btn {
+    font: inherit; font-size: var(--step--1); line-height: 1;
+    padding: 0.6rem 1rem; border-radius: 999px;
+    border: 1px solid var(--rule); background: var(--sheet); color: var(--ink);
+    text-decoration: none; cursor: pointer;
+  }
+  .share__btn:hover { border-color: var(--marigold); background: #fbf3e2; }
+  .share__status { min-height: 1.5em; margin: 0.6rem 0 0; font-size: var(--step--1); color: var(--leaf); }
+</style>

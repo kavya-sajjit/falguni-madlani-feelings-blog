@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "import-blogger": "node scripts/import-blogger.mjs"
   },
@@ -12,7 +12,9 @@
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/literata": "^5.3.0",
+    "@fontsource/kalam": "^5.3.0",
     "@fontsource/young-serif": "^5.3.0",
-    "astro": "^7.4.5"
+    "astro": "^7.4.5",
+    "pagefind": "^1.6.0"
   }
 }

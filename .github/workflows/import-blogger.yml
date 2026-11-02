@@ -1,12 +1,18 @@
-# Copies posts from the old Blogger blog into this repo. Run it from the Actions tab:
-# Actions -> "Import from Blogger" -> Run workflow. Safe to run again; it only adds or updates.
+# Copies posts from the old Blogger blog into this repo.
+# Runs once automatically when this file first lands on main; after that, run it by hand from
+# Actions -> "Import from Blogger" -> Run workflow (e.g. if she posts on Blogger again).
+# It only adds or updates posts that came from Blogger. Careful: re-running overwrites edits
+# made on the new site to an imported post.
 name: Import from Blogger
 on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/import-blogger.yml", "scripts/import-blogger.mjs"]
   workflow_dispatch:
     inputs:
       blogger_url:
-        description: "Blogger address, e.g. https://example.blogspot.com"
-        required: true
+        description: "Blogger address"
+        default: "https://madlanifalgunis.blogspot.com"
 permissions:
   contents: write
 jobs:
@@ -19,7 +25,7 @@ jobs:
           node-version: 22
       - run: node scripts/import-blogger.mjs
         env:
-          BLOGGER_URL: ${{ inputs.blogger_url }}
+          BLOGGER_URL: ${{ inputs.blogger_url || 'https://madlanifalgunis.blogspot.com' }}
       - name: Commit imported posts
         run: |
           git config user.name "github-actions[bot]"

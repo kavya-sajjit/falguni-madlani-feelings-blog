@@ -1,5 +1,5 @@
 ---
-import { url, fmtDate, excerpt } from "../site";
+import { url, fmtDate, excerpt, readingTime } from "../site";
 interface Props { posts: any[]; withExcerpt?: boolean }
 const { posts, withExcerpt = true } = Astro.props;
 ---
@@ -10,6 +10,7 @@ const { posts, withExcerpt = true } = Astro.props;
       <div>
         <h2><a href={url(`posts/${p.id}/`)}>{p.data.title}</a></h2>
         {withExcerpt && <p>{p.data.description ?? excerpt(p.body)}</p>}
+        {withExcerpt && <p class="rt">{readingTime(p.body)}</p>}
       </div>
     </li>
   ))}
@@ -26,8 +27,9 @@ const { posts, withExcerpt = true } = Astro.props;
   time { color: var(--fern); font-size: var(--step--1); padding-top: 0.45rem; }
   h2 { font-size: var(--step-2); }
   h2 a { color: var(--ink); text-decoration: none; }
-  h2 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: var(--mulberry); }
-  p { margin: 0.5rem 0 0; color: #3b4637; }
+  h2 a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--marigold); }
+  p { margin: 0.5rem 0 0; color: #3a3a2d; }
+  .rt { margin-top: 0.35rem; font-size: var(--step--1); color: var(--fern); }
   @media (max-width: 44rem) {
     li { grid-template-columns: 1fr; }
     time { padding-top: 0; }

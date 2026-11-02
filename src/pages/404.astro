@@ -2,9 +2,14 @@
 import Base from "../layouts/Base.astro";
 import { url } from "../site";
 ---
-<Base title="Page not found">
-  <div class="wrap" style="padding-top: 5rem; max-width: 36rem;">
+<Base title="Page not found" noindex>
+  <div class="wrap" style="padding-top: 4rem; max-width: 36rem;">
     <h1 style="font-size: var(--step-3);">This page isn't here</h1>
-    <p>The link may be from the old Blogger site. Every post is listed in the <a href={url("archive/")}>archive</a>.</p>
+    <p id="msg">The link may be from the old Blogger site. Every post is in the <a href={url("archive/")}>archive</a>, and you can <a href={url("search/")}>search</a> for it too.</p>
   </div>
+  <script is:inline define:vars={{ base: url("posts/") }}>
+    // Old Blogger addresses look like /2026/09/uff-yeh-exams.html. Send them to the same post here.
+    const m = location.pathname.match(/\/(\d{4})\/(\d{2})\/([^/]+?)\.html$/);
+    if (m) location.replace(`${base}${m[1]}-${m[2]}-${m[3]}/`);
+  </script>
 </Base>

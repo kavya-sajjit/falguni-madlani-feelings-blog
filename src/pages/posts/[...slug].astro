@@ -1,58 +1,94 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import Fern from "../../components/Fern.astro";
-import { url, fmtDate, excerpt } from "../../site";
+import Share from "../../components/Share.astro";
+import { url, fmtDate, excerpt, readingTime, slugify } from "../../site";
 
 export async function getStaticPaths() {
   const posts = (await getCollection("posts", (p) => !p.data.draft))
     .sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
-  return posts.map((post, i) => ({
-    params: { slug: post.id },
-    props: { post, prev: posts[i - 1], next: posts[i + 1] },
-  }));
+  return posts.map((post, i) => {
+    // Related: posts sharing a label first, then the nearest in time.
+    const others = posts.filter((p) => p.id !== post.id);
+    const shared = (p: any) => p.data.labels.filter((l: string) => post.data.labels.includes(l)).length;
+    const dist = (p: any) => Math.abs(p.data.date.valueOf() - post.data.date.valueOf());
+    const related = others.sort((a, b) => shared(b) - shared(a) || dist(a) - dist(b)).slice(0, 3);
+    return { params: { slug: post.id }, props: { post, prev: posts[i - 1], next: posts[i + 1], related } };
+  });
 }
-const { post, prev, next } = Astro.props;
+const { post, prev, next, related } = Astro.props;
 const { Content } = await render(post);
 const description = post.data.description ?? excerpt(post.body, 28);
+const href = new URL(url(`posts/${post.id}/`), Astro.site).href;
 ---
 <Base title={post.data.title} description={description} image={post.data.cover ?? post.data.image} article={{ published: post.data.date }}>
   <article class="wrap post">
-    <time datetime={post.data.date.toISOString()}>{fmtDate(post.data.date)}</time>
-    <div class="body">
+    <aside class="meta">
+      <time datetime={post.data.date.toISOString()}>{fmtDate(post.data.date)}</time>
+      <span>{readingTime(post.body)}</span>
+      {post.data.labels.length > 0 && (
+        <ul class="labels" aria-label="Topics">
+          {post.data.labels.map((l) => <li><a href={url(`topics/${slugify(l)}/`)}>{l}</a></li>)}
+        </ul>
+      )}
+    </aside>
+    <div class="body" data-pagefind-body>
       <h1>{post.data.title}</h1>
       {post.data.cover && <img class="cover" src={post.data.cover} alt={post.data.coverAlt ?? ""} />}
       <div class="prose"><Content /></div>
-      <div class="sign"><Fern /></div>
+      <p class="hand sign" data-pagefind-ignore>~ Falguni</p>
+      <div data-pagefind-ignore><Share title={post.data.title} href={href} /></div>
     </div>
   </article>
 
-  <nav class="wrap pager" aria-label="More posts">
-    {prev ? <a href={url(`posts/${prev.id}/`)} rel="prev"><span>Earlier</span>{prev.data.title}</a> : <span />}
-    {next ? <a href={url(`posts/${next.id}/`)} rel="next" class="next"><span>Later</span>{next.data.title}</a> : <span />}
+  {related.length > 0 && (
+    <section class="wrap related" aria-labelledby="related">
+      <h2 id="related">You might also like</h2>
+      <ul>
+        {related.map((r) => (
+          <li><a href={url(`posts/${r.id}/`)}>{r.data.title}</a><span>{fmtDate(r.data.date)}</span></li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <nav class="wrap pager" aria-label="Older and newer posts">
+    {prev ? <a href={url(`posts/${prev.id}/`)} rel="prev"><span>Older</span>{prev.data.title}</a> : <span />}
+    {next ? <a href={url(`posts/${next.id}/`)} rel="next" class="next"><span>Newer</span>{next.data.title}</a> : <span />}
   </nav>
 </Base>
 
 <style>
   .post {
-    padding-top: clamp(2.5rem, 7vw, 5rem);
+    padding-top: clamp(2rem, 6vw, 4rem);
     display: grid; grid-template-columns: 9.5rem minmax(0, 44rem); gap: 0.5rem 2rem;
   }
-  time { color: var(--fern); font-size: var(--step--1); padding-top: 0.9rem; }
+  .meta { display: flex; flex-direction: column; gap: 0.2rem; padding-top: 0.9rem; font-size: var(--step--1); color: var(--fern); }
+  .labels { list-style: none; padding: 0; margin: 0.75rem 0 0; display: flex; flex-direction: column; gap: 0.2rem; }
+  .labels a { color: var(--clay); }
   h1 { font-size: var(--step-3); margin-bottom: 2.25rem; text-wrap: balance; }
-  .cover { max-width: 44rem; width: 100%; margin-bottom: 2.25rem; border-radius: 3px; }
-  .sign { width: 2.2rem; margin-top: 3rem; opacity: 0.8; }
+  .cover { width: 100%; margin-bottom: 2.25rem; border-radius: 4px; }
+  .sign { font-size: 1.6rem; margin: 2rem 0 0; transform: rotate(-2deg); transform-origin: left; }
+
+  .related { margin-top: 3.5rem; padding-left: 11.5rem; }
+  .related h2 { font-family: var(--serif); font-style: italic; font-size: var(--step--1); color: var(--fern); }
+  .related ul { list-style: none; padding: 0; margin: 0.75rem 0 0; display: grid; gap: 0.75rem; }
+  .related a { font-family: var(--serif-display); font-size: var(--step-1); color: var(--ink); text-decoration: none; margin-right: 0.75rem; }
+  .related a:hover { color: var(--clay); }
+  .related span { font-size: var(--step--1); color: var(--fern); white-space: nowrap; }
+
   .pager {
     display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding-left: 11.5rem;
-    margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--rule);
+    margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--rule);
   }
   .pager a { color: var(--ink); text-decoration: none; font-family: var(--serif-display); font-size: var(--step-1); line-height: 1.3; }
-  .pager a:hover { color: var(--mulberry); }
+  .pager a:hover { color: var(--clay); }
   .pager span { display: block; font-family: var(--serif); font-style: italic; font-size: var(--step--1); color: var(--fern); margin-bottom: 0.25rem; }
   .pager .next { text-align: right; }
   @media (max-width: 44rem) {
     .post { grid-template-columns: 1fr; }
-    time { padding-top: 0; }
-    .pager { padding-left: 0; }
+    .meta { flex-direction: row; flex-wrap: wrap; gap: 0.2rem 1rem; padding-top: 0; }
+    .labels { flex-direction: row; margin: 0; gap: 0.2rem 0.75rem; }
+    .related, .pager { padding-left: 0; }
   }
 </style>

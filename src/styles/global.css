@@ -1,18 +1,23 @@
 @import "@fontsource/young-serif/400.css";
 @import "@fontsource-variable/literata/wght.css";
 @import "@fontsource-variable/literata/wght-italic.css";
+@import "@fontsource/kalam/400.css";
 
 :root {
-  --paper: #edefe7;     /* lichen */
-  --leaf: #f6f7f2;      /* lighter paper for quotes and code */
-  --ink: #1f2a1c;       /* moss ink */
-  --moss: #3d5233;      /* line art */
-  --fern: #66715e;      /* secondary text */
-  --mulberry: #7a3e4f;  /* links */
-  --rule: #c9cfbe;
+  --paper: #eeede3;     /* sun-faded linen with a little green in it */
+  --sheet: #f7f6ef;     /* a lighter page, for the welcome note and quotes */
+  --ink: #2a2a1f;       /* warm near-black, like fountain-pen ink */
+  --moss: #3d5233;      /* line art, quotes */
+  --leaf: #4f6b34;      /* mango leaf */
+  --marigold: #eea83a;  /* decoration only: too light for text */
+  --clay: #8f4f0c;      /* links and handwritten notes: marigold darkened to read on paper */
+  --fern: #6a6d5c;      /* secondary text */
+  --rule: #d2d0c0;
+  --mulberry: var(--clay);
 
   --serif-display: "Young Serif", Georgia, serif;
   --serif: "Literata Variable", Georgia, "Times New Roman", serif;
+  --hand: "Kalam", "Segoe Print", cursive;   /* Indian Type Foundry; used sparingly, for her voice */
 
   /* modular scale, ratio 1.25 from an 18–19px body */
   --step--1: 0.875rem;
@@ -42,13 +47,13 @@ img { max-width: 100%; height: auto; display: block; }
 a { color: var(--mulberry); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 a:hover { text-decoration-thickness: 2px; }
 :focus-visible { outline: 2px solid var(--mulberry); outline-offset: 3px; border-radius: 2px; }
-::selection { background: #d9dfcb; }
+::selection { background: #f6d9a6; }
 
 h1, h2, h3 { font-family: var(--serif-display); font-weight: 400; line-height: 1.15; margin: 0; }
 
 .wrap { width: min(100% - 2 * var(--gutter), 60rem); margin-inline: auto; }
 .skip { position: absolute; left: -999px; }
-.skip:focus { left: 1rem; top: 1rem; background: var(--leaf); padding: 0.5rem 1rem; z-index: 10; }
+.skip:focus { left: 1rem; top: 1rem; background: var(--sheet); padding: 0.5rem 1rem; z-index: 10; }
 
 /* ---------- long-form text (posts and about) */
 .prose { max-width: var(--measure); hyphens: auto; }
@@ -73,3 +78,5 @@ h1, h2, h3 { font-family: var(--serif-display); font-weight: 400; line-height: 1
 .prose table { max-width: 100%; }
 .prose .blogger > * + * { margin-top: 0.9em; }
 .prose .blogger img { margin: 1.5rem 0; }
+
+.hand { font-family: var(--hand); color: var(--clay); font-weight: 400; }

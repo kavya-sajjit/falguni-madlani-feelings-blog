@@ -1,53 +1,93 @@
 ---
+import fs from "node:fs";
 import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
-import Fern from "../components/Fern.astro";
 import PostList from "../components/PostList.astro";
-import { url } from "../site";
+import { url, fmtDate, excerpt, readingTime, allLabels, slugify } from "../site";
 
 const posts = (await getCollection("posts", (p) => !p.data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const latest = posts.slice(0, 8);
+const [latest, ...rest] = posts;
+const more = rest.slice(0, 7);
+const labels = allLabels(posts).slice(0, 12);
+// Her photo appears in the welcome note once public/images/falguni.jpg exists.
+const hasPhoto = fs.existsSync("public/images/falguni.jpg");
 ---
-<Base>
+<Base settle>
   <section class="hero wrap">
-    <div class="hero__fern"><Fern animate /></div>
-    <div class="hero__text">
-      <h1>Feelings</h1>
-      <p class="lede">
-        Personal writing by Falguni Madlani, about life, family,
-        and the small moments that stay with her.
-      </p>
+    <h1>Feelings</h1>
+    <div class="welcome">
+      {hasPhoto && <img src={url("images/falguni.jpg")} alt="Falguni Madlani" width="112" height="112" />}
+      <div>
+        <p class="lede">
+          A mother and teacher writes about family, festivals, exams and everyday life,
+          Berry the society cat included.
+        </p>
+        <p class="hand by">with love, Falguni Madlani</p>
+      </div>
     </div>
   </section>
 
-  <section class="wrap" aria-labelledby="recent">
-    <h2 id="recent" class="section-title">Recent writing</h2>
-    {latest.length ? <PostList posts={latest} /> : <p class="empty">The first post is on its way.</p>}
-    {posts.length > latest.length && (
-      <p class="more"><a href={url("archive/")}>All {posts.length} posts, by year</a></p>
-    )}
-  </section>
+  {latest ? (
+    <section class="wrap latest" aria-labelledby="latest-title">
+      <p class="kicker"><time datetime={latest.data.date.toISOString()}>{fmtDate(latest.data.date)}</time>, the newest post</p>
+      <h2 id="latest-title"><a href={url(`posts/${latest.id}/`)}>{latest.data.title}</a></h2>
+      <p class="latest__text">{latest.data.description ?? excerpt(latest.body, 70)}</p>
+      <p class="latest__more"><a href={url(`posts/${latest.id}/`)}>Read the whole post</a> <span>({readingTime(latest.body)})</span></p>
+    </section>
+  ) : (
+    <section class="wrap"><p class="empty">The first post is on its way.</p></section>
+  )}
+
+  {more.length > 0 && (
+    <section class="wrap" aria-labelledby="more">
+      <h2 id="more" class="section-title">Earlier posts</h2>
+      <PostList posts={more} />
+      {posts.length > more.length + 1 && (
+        <p class="more"><a href={url("archive/")}>See all {posts.length} posts</a></p>
+      )}
+    </section>
+  )}
+
+  {labels.length > 0 && (
+    <section class="wrap topics" aria-labelledby="topics">
+      <h2 id="topics" class="section-title">Read by topic</h2>
+      <ul>
+        {labels.map(([l, n]) => <li><a href={url(`topics/${slugify(l)}/`)}>{l}</a> <span>{n}</span></li>)}
+      </ul>
+    </section>
+  )}
 </Base>
 
 <style>
-  .hero {
-    display: grid; grid-template-columns: 9.5rem minmax(0, 1fr);
-    gap: 1rem 2rem; align-items: end;
-    padding-block: clamp(2.5rem, 8vw, 6rem) clamp(2.5rem, 6vw, 4.5rem);
+  .hero { padding-block: clamp(2rem, 6vw, 4.5rem) clamp(2rem, 5vw, 3.5rem); padding-left: 11.5rem; }
+  h1 { font-size: var(--step-4); letter-spacing: -0.01em; margin-bottom: 1.25rem; }
+  .welcome { display: flex; gap: 1.5rem; align-items: center; max-width: 38rem; }
+  .welcome img { width: 112px; height: 112px; object-fit: cover; border-radius: 50%; border: 3px solid var(--sheet); box-shadow: 0 0 0 1px var(--rule); flex: none; }
+  .lede { margin: 0; font-size: var(--step-1); line-height: 1.5; color: #3a3a2d; text-wrap: pretty; }
+  .by { margin: 0.5rem 0 0; font-size: 1.35rem; transform: rotate(-1.5deg); transform-origin: left; }
+
+  .latest {
+    padding-left: 11.5rem; padding-block: 2.25rem 2.5rem;
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
   }
-  .hero__fern { width: 7.5rem; }
-  h1 {
-    font-size: var(--step-4); letter-spacing: -0.01em;
-    margin-bottom: 1.25rem;
-  }
-  .lede { margin: 0; max-width: 30rem; font-size: var(--step-1); line-height: 1.5; color: #34402f; text-wrap: pretty; }
-  .section-title { font-size: var(--step--1); font-family: var(--serif); color: var(--fern); font-style: italic; margin-bottom: 0.5rem; }
+  .kicker { margin: 0 0 0.5rem; color: var(--fern); font-size: var(--step--1); }
+  .latest h2 { font-size: var(--step-3); max-width: 40rem; text-wrap: balance; }
+  .latest h2 a { color: var(--ink); text-decoration: none; }
+  .latest h2 a:hover { text-decoration: underline; text-decoration-color: var(--marigold); text-decoration-thickness: 2px; }
+  .latest__text { max-width: var(--measure); margin: 1rem 0 0; color: #3a3a2d; }
+  .latest__more { margin: 1rem 0 0; }
+  .latest__more span { color: var(--fern); font-size: var(--step--1); }
+
+  .section-title { font-size: var(--step--1); font-family: var(--serif); color: var(--fern); font-style: italic; margin: 3rem 0 0.25rem; }
   .more { margin: 1rem 0 0; padding-left: 11.5rem; }
   .empty { color: var(--fern); }
+
+  .topics ul { list-style: none; padding: 0; margin: 0.75rem 0 0; display: flex; flex-wrap: wrap; gap: 0.6rem 1.75rem; max-width: 46rem; }
+  .topics li span { color: var(--fern); font-size: var(--step--1); }
+
   @media (max-width: 44rem) {
-    .hero { grid-template-columns: 4.5rem 1fr; gap: 1rem 1.25rem; align-items: center; }
-    .hero__fern { width: 4.5rem; }
-    .more { padding-left: 0; }
+    .hero, .latest, .more { padding-left: 0; }
+    .welcome { flex-direction: column; align-items: flex-start; }
   }
 </style>

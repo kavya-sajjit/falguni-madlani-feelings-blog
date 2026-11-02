@@ -1,0 +1,35 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import PostList from "../../components/PostList.astro";
+import { url, allLabels, slugify } from "../../site";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", (p) => !p.data.draft);
+  return allLabels(posts).map(([label]) => ({
+    params: { label: slugify(label) },
+    props: {
+      label,
+      posts: posts.filter((p) => p.data.labels.includes(label))
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+    },
+  }));
+}
+const { label, posts } = Astro.props;
+---
+<Base title={label} description={`Posts about ${label} on Feelings by Falguni Madlani.`}>
+  <div class="wrap page">
+    <p class="up"><a href={url("topics/")}>All topics</a></p>
+    <h1>{label}</h1>
+    <p class="count">{posts.length} {posts.length === 1 ? "post" : "posts"}</p>
+    <PostList posts={posts} />
+  </div>
+</Base>
+<style>
+  .page { padding-top: clamp(2rem, 6vw, 4rem); }
+  .up, h1, .count { padding-left: 11.5rem; }
+  .up { margin: 0; font-size: var(--step--1); }
+  h1 { font-size: var(--step-3); margin-top: 0.5rem; }
+  .count { color: var(--fern); margin: 0.4rem 0 1.5rem; }
+  @media (max-width: 44rem) { .up, h1, .count { padding-left: 0; } }
+</style>

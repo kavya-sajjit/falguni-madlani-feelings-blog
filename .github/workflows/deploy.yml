@@ -4,6 +4,10 @@ name: Publish site
 on:
   push:
     branches: [main]
+  # Commits made by the import workflow don't trigger `push`, so publish after it finishes too.
+  workflow_run:
+    workflows: ["Import from Blogger"]
+    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: 22

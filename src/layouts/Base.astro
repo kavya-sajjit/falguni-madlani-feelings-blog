@@ -1,21 +1,25 @@
 ---
 import "../styles/global.css";
 import { SITE, url } from "../site";
+import Toran from "../components/Toran.astro";
 
 interface Props {
   title?: string;
   description?: string;
   image?: string;
   article?: { published: Date };
+  noindex?: boolean;
+  settle?: boolean;   // animate the toran (home page only)
 }
-const { title, description = SITE.description, image, article } = Astro.props;
+const { title, description = SITE.description, image, article, noindex = false, settle = false } = Astro.props;
 const pageTitle = title ? `${title} | ${SITE.fullTitle}` : `${SITE.fullTitle}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image ?? url("og.png"), Astro.site);
 const path = Astro.url.pathname;
 const nav = [
   { href: url("/"), label: "Writing" },
-  { href: url("archive/"), label: "Archive" },
+  { href: url("topics/"), label: "Topics" },
+  { href: url("search/"), label: "Search" },
   { href: url("about/"), label: "About" },
 ];
 
@@ -50,7 +54,8 @@ const ld = article
     <link rel="icon" href={url("favicon.svg")} type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title={SITE.fullTitle} href={url("rss.xml")} />
     <link rel="sitemap" href={url("sitemap-index.xml")} />
-    <meta name="theme-color" content="#edefe7" />
+    <meta name="theme-color" content="#eeede3" />
+    {noindex && <meta name="robots" content="noindex" />}
 
     <meta property="og:site_name" content={SITE.fullTitle} />
     <meta property="og:title" content={title ?? SITE.fullTitle} />
@@ -64,6 +69,7 @@ const ld = article
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
+    <Toran animate={settle} />
     <header class="site-head wrap">
       <a class="site-name" href={url("/")}>Falguni Madlani</a>
       <nav aria-label="Main">
@@ -77,7 +83,7 @@ const ld = article
     </main>
     <footer class="site-foot wrap">
       <p>© {new Date().getFullYear()} Falguni Madlani. Words and photographs are hers; please ask before reusing them.</p>
-      <p><a href={url("rss.xml")}>Follow by RSS</a></p>
+      <p><a href={url("rss.xml")}>Follow by RSS</a> <span class="sep" aria-hidden="true">/</span> <a href={url("archive/")}>All posts</a></p>
     </footer>
   </body>
 </html>
@@ -86,15 +92,15 @@ const ld = article
   .site-head {
     display: flex; flex-wrap: wrap; gap: 0.5rem 2rem;
     align-items: baseline; justify-content: space-between;
-    padding-block: 1.75rem 0;
+    padding-block: 0.75rem 0;
   }
   .site-name {
     font-family: var(--serif-display); font-size: 1.15rem;
     color: var(--ink); text-decoration: none;
   }
-  nav { display: flex; gap: 1.5rem; }
+  nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1.4rem; }
   nav a { color: var(--fern); text-decoration: none; font-size: var(--step--1); }
-  nav a:hover, nav a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule); }
+  nav a:hover, nav a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-decoration-color: var(--marigold); text-decoration-thickness: 2px; }
   main { padding-bottom: 5rem; }
   .site-foot {
     border-top: 1px solid var(--rule);
@@ -104,4 +110,5 @@ const ld = article
   }
   .site-foot p { margin: 0; max-width: 36rem; }
   .site-foot a { color: var(--fern); }
+  .sep { margin-inline: 0.4rem; color: var(--rule); }
 </style>

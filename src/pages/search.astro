@@ -1,0 +1,46 @@
+---
+import Base from "../layouts/Base.astro";
+import { url } from "../site";
+---
+<Base title="Search" description="Search every post on Feelings by Falguni Madlani.">
+  <div class="wrap page">
+    <h1>Search</h1>
+    <p class="hint">Look for a word, a festival, a name, anything you remember from a post.</p>
+    <div id="search"></div>
+    <noscript><p>Search needs JavaScript. Every post is listed in the <a href={url("archive/")}>archive</a>.</p></noscript>
+  </div>
+  <link href={url("pagefind/pagefind-ui.css")} rel="stylesheet" />
+  <script is:inline define:vars={{ bundle: url("pagefind/") }}>
+    const s = document.createElement("script");
+    s.src = bundle + "pagefind-ui.js";
+    s.onload = () => {
+      new PagefindUI({
+        element: "#search", bundlePath: bundle, showImages: false, resetStyles: false,
+        translations: { placeholder: "Search the blog", zero_results: "Nothing found for [SEARCH_TERM]. Try a shorter or different word." },
+      });
+      document.querySelector("#search input")?.focus();
+    };
+    s.onerror = () => {
+      document.getElementById("search").innerHTML = '<p>Search becomes available once the site is published.</p>';
+    };
+    document.head.appendChild(s);
+  </script>
+</Base>
+<style is:global>
+  .page { padding-top: clamp(2rem, 6vw, 4rem); max-width: 48rem; }
+  .page h1 { font-size: var(--step-3); }
+  .hint { color: var(--fern); margin: 0.5rem 0 1.5rem; }
+  #search {
+    --pagefind-ui-font: var(--serif);
+    --pagefind-ui-primary: var(--clay);
+    --pagefind-ui-text: var(--ink);
+    --pagefind-ui-background: var(--sheet);
+    --pagefind-ui-border: var(--rule);
+    --pagefind-ui-tag: var(--paper);
+    --pagefind-ui-border-radius: 6px;
+    --pagefind-ui-scale: 0.95;
+  }
+  #search .pagefind-ui__result-link { color: var(--ink); font-family: var(--serif-display); font-weight: 400; }
+  #search input, #search button { font-family: var(--serif); }
+  #search mark { background: #f6d9a6; color: inherit; }
+</style>

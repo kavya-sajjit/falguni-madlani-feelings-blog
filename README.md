@@ -14,9 +14,10 @@ To keep something unfinished private, tick **Save as draft**. Untick it when it'
 
 ## Bringing posts across from Blogger
 
-Actions tab → **Import from Blogger** → **Run workflow**, then paste the Blogger address.
-It copies every post (text, dates, labels; images stay on Blogger's servers) into `src/content/posts/`.
-It's safe to run again later: it only adds or updates, and never touches posts written here.
+The posts from [madlanifalgunis.blogspot.com](https://madlanifalgunis.blogspot.com) were imported automatically on the first push
+(text, dates and labels; images stay on Blogger's servers). To pull again later: Actions → **Import from Blogger** → **Run workflow**.
+It never touches posts written on the new site, but it **does** overwrite edits made here to an imported post.
+Old Blogger-style links (`/2026/09/post-name.html`) redirect to the same post here.
 
 ## Developing
 
@@ -31,18 +32,33 @@ BLOGGER_URL=https://example.blogspot.com npm run import-blogger
 |---|---|
 | `src/content/posts/` | One Markdown file per post |
 | `src/pages/` | Home, post page, archive, about, RSS, 404 |
-| `src/components/Fern.astro` | The fern line drawing (generated, drawn on first visit) |
+| `src/components/Toran.astro` | The marigold-and-mango-leaf toran across the top (generated SVG; settles in once on the home page) |
+| `src/components/Share.astro` | WhatsApp / email / copy-link sharing |
+| `src/pages/topics/` | Topic pages, from post labels |
+| `src/pages/search.astro` | Full-text search ([Pagefind](https://pagefind.app), built at deploy time) |
+| `src/pages/write.astro` | Falguni's shortcut to the editor (hidden from Google) |
 | `src/styles/global.css` | Colours, type scale, reading styles |
 | `.pages.yml` | The editor Falguni uses (Pages CMS) |
 
-**Design.** Lichen paper `#edefe7`, moss ink `#1f2a1c`, mulberry links `#7a3e4f`. Young Serif for titles, Literata for reading. One reading column at about 65 characters per line, dates in the margin.
+**Design.** Like walking into her home: a toran over the door, sun-faded linen paper `#eeede3`, warm ink `#2a2a1f`, marigold `#eea83a` and mango-leaf green `#4f6b34`, with links in darkened marigold `#8f4f0c` so they stay readable. Young Serif for titles, Literata for reading, and Kalam (an Indian handwriting face) only for her sign-offs. One reading column of about 65 characters, with dates, reading time and topics in the margin.
+
+**Her photo.** Put a square photo at `public/images/falguni.jpg` and it appears in the welcome note on the home page.
 
 ## Being found on Google
 
 The site has a sitemap, canonical URLs, Open Graph previews and schema.org `Person` / `BlogPosting` data.
 To get indexed quickly, add the site in [Google Search Console](https://search.google.com/search-console)
 (URL-prefix property, HTML-file verification: put the file in `public/`), then submit `sitemap-index.xml`.
-Also link the new site from the old Blogger blog's sidebar and her social profiles: links are what make Google trust a new site.
+Also link the new site from the old Blogger blog and her social profiles: links are what make Google trust a new site.
+
+**On the old Blogger blog:** Layout → Add a Gadget → HTML/JavaScript, title "My blog has moved", content:
+
+```html
+<p>Feelings has a new home. All my posts, old and new, are at
+<a href="https://kavya-sajjit.github.io/falguni-madlani-feelings-blog/">Feelings, by Falguni Madlani</a>.</p>
+```
+
+Then drag it to the top of the sidebar. Leave the old posts up, so old links keep working.
 
 ## Custom domain (later)
 
